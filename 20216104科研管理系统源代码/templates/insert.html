@@ -1,0 +1,1122 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 
+{% comment %} 下拉菜单 {% endcomment %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% comment %} <script src="https://code.jquery.com/jquery-1.12.4.js"></script> {% endcomment %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+
+<style>
+    .col-xs-1 {
+        width: 15% !important;
+    }
+
+    .col-xs-2 {
+        width: 35% !important;
+    }
+
+    .col-xs-3 {
+        width: 25% !important;
+    }
+
+    .upload-wrap {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        border: 1px solid #2d78f4;
+        border-radius: 3px;
+    }
+
+    .upload-wrap .file-ele {
+        position: absolute;
+        top: 0;
+        right: 0;
+        opacity: 0;
+        height: 100%;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .upload-wrap .file-open {
+        width: 90px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        color: #fff;
+        background: #3385ff;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        var picker1 = $('#datetimepicker1').datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: moment.locale('zh-cn'),
+            //minDate: '2016-7-1'
+        });
+    });
+    $('#datetimepicker1').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: moment.locale('zh-cn'),
+        defaultDate: "1990-1-1"
+    });
+</script>
+
+<div class="col-md-10">
+    <!-- <div class="container-fluid"> -->
+    <div class="row">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 添加项目(
+                <em style="color: red;">*</em>为必填项）
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div>
+                        <label class="form-inline" style="margin-left: 18px;">BibTex粘贴处：
+                            <textarea id="Bibtex" name="Bibtex" style="font-size:8px; width:580px; height:120px; margin-right: 18px">
+                            </textarea>
+                        </label>
+                        <input style="left:2px" class="btn btn-success" href="#" rel="external nofollow" type="button"
+                            id="BibtexCommit" value="自动填充" style="margin-left:445px">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="panel-body">
+                <div class="row">
+                    <div>
+                        <label class="form-inline" style="margin-left: 18px;"><em
+                                style="color: red;margin-right: 5px;">*</em>论文标题：
+                            <input type="text" id="title" name="title" label="title" class="form-control"
+                                style="width:600px; margin-right: 18px"></label>
+                        <label class="form-inline" style="margin-left: 18px;">论文语言:</label>
+                        <input type="radio" name="language_type" value="Chinese"
+                            style="margin-right: 10px;margin-left: 10px;" checked />中文
+                        <input type="radio" name="language_type" value="English" id="English"
+                            style="margin-right: 10px;margin-left: 10px;">英文
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div>
+                        <label class="form-inline" style="margin-left: 18px;"><em
+                                style="color: red;margin-right: 5px;">*</em>期刊/会议名称：
+                            <input type="text" id="cjname" label="cjname" class="form-control" required="required"
+                                style="width:568px; margin-right: 18px"></label>
+                        <label class="form-inline" style="margin-left: 18px;">论文类型:</label>
+                        <input type="radio" name="paper_type" value="journal" id="journal"
+                            style="margin-right: 10px;margin-left: 10px;" checked />期刊
+                        <input type="radio" name="paper_type" value="conference" id="conference"
+                            style="margin-right: 10px;margin-left: 10px;">会议
+
+                    </div>
+                </div>
+            </div>
+            {% if conference.checked %}
+
+            {% endif %}
+
+
+            <div class="panel-body">
+                <div class="row">
+
+                    <div id="jj_row">
+                        <div class="col-xs-2">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><em style="color: red;margin-right:5px;">*</em>
+                                    页码范围
+                                </div>
+                                <div class="panel-body">
+                                    <form class="form-inline">
+                                        卷
+                                        <input class="form-control" type="text" id="volume" style="width:50px;">期
+
+                                        <input class="form-control" type="text" id="issue" style="width:50px;">页
+
+                                        <input class="form-control" type="text" id="page_1" style="width:60px;">~
+
+                                        <input class="form-control" type="text" id="page_2" style="width:60px;">
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="journal_choice"></div>
+                    <div id="conference_choice"></div>
+
+
+
+                    <div id="jj_row_1">
+                        <div class="col-md-3">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><em style="color: red;">*</em>
+                                    期刊论文类型
+                                </div>
+                                <div class="panel-body">
+                                    <!-- <br> -->
+                                    <label class="radio-inline">
+                                        <input type="radio" name="j_type" value="正刊" checked />正刊
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="j_type" value="专刊">专刊
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="j_type" value="专刊">增刊
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="journal_choice_1"></div>
+                    <div id="conference_choice_1"></div>
+                    <div id="demo_choice"></div>
+
+
+
+
+                    <!-- <div class="row"> -->
+                    <div class="col-md-3">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"><em style="color: red;">*</em>
+                                论文正式发表日期
+                            </div>
+                            <div class="panel-body">
+                                <div class='col-sm-12'>
+                                    <div class="form-group">
+                                        <div class='input-group date' id='datetimepicker1'>
+                                            <input type='text' id="date" class="form-control" />
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+                <div class="panel-body">
+                    <div class="panel-block">
+                        <p class="control has-icons-left">
+                            <button id="addRow" type="button" class="btn btn-info">添加作者</button>
+                            <span class="icon is-left">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><em style="color: red;margin-right: 5px;">*</em>作者信息录入
+                                        （注意：请按照作者顺序录入）</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table table-striped" style="table-layout:fixed;" id="table">
+                                        <thead>
+                                            <tr>
+                                                <th>人员类型</th>
+                                                <th>身份</th>
+                                                <th>姓名</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inputFormRow">
+                                            <tr>
+
+                                                <td>
+                                                    <select id="人员类型" class="form-control" label="authortype"
+                                                        style="width:110px; ">
+                                                        <option>本院教师</option>
+                                                        <option>本院学生</option>
+                                                        <option>其他</option>
+                                                    </select>
+                                                </td>
+
+                                                <td>
+                                                    <select class="form-control" label="identity" style="width:110px;">
+                                                        <option>普通作者</option>
+                                                        <option>通讯作者</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input class="form-control" type="text" label="authorname"
+                                                        style="width:110px;" placeholder="请输入姓名">
+                                                </td>
+
+                                                <td>
+
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div id="newRow"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <a class="btn btn-success" href="#" rel="external nofollow" role="button"
+                                style="margin-left: 30px;">提 交</a>  -->
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="upload-wrap anticon col-md-offset-11" nv-file-drop="" uploader="uploader">
+                                    <input class="file-ele" type="file" id="file" value="上传文件" file-model="image"
+                                        name="image" nv-file-select uploader="uploader" multiple />
+                                    <div class="file-open"><em class="icon icon-upload"></em>&nbsp;上传电子版</div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <input style="left:2px" class="btn btn-success col-md-offset-12" href="#" rel="external nofollow"
+                                    type="button" id="commit" value="提交" style="margin-left:445px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 论文标题响应input事件
+    $(document).on("input","[label=\"title\"]", function(){
+    // })
+    // $('[label=\"value\"]').on('input', function(){
+        var data = new Object;
+        var target = $(event.target);
+
+        // 获取选中的查询项
+        data.field = '论文题目'
+        // 获取输入的值
+        data.term = $(event.target).val()
+
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        $.ajax({
+            url: '/api_dropbox/',
+            type: 'post',
+            data: data,
+            target: target,
+
+            success: function (response){
+                if (response.code == 1000){
+                    
+                    var results = JSON.parse(response.results);
+                    console.log(results);
+
+                    target.autocomplete({
+                    source: results
+                    });
+                }
+            }
+        })
+    })
+
+    // 期刊会议名称响应input事件
+    $(document).on("input","[label=\"cjname\"]", function(){
+    // })
+    // $('[label=\"value\"]').on('input', function(){
+        var data = new Object;
+        var target = $(event.target);
+
+        // 获取选中的查询项
+        data.field = '期刊/会议名称'
+        // 获取输入的值
+        data.term = $(event.target).val()
+
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        $.ajax({
+            url: '/api_dropbox/',
+            type: 'post',
+            data: data,
+            target: target,
+
+            success: function (response){
+                if (response.code == 1000){
+                    
+                    var results = JSON.parse(response.results);
+                    console.log(results);
+
+                    target.autocomplete({
+                    source: results
+                    });
+                }
+            }
+        })
+    })
+
+    // 作者姓名名称响应input事件
+    $(document).on("input","[label=\"authorname\"]", function(){
+        // })
+        // $('[label=\"value\"]').on('input', function(){
+        var data = new Object;
+        var target = $(event.target);
+
+        // 获取选中的查询项
+        data.field = '作者姓名'
+        // 获取输入的值
+        data.term = $(event.target).val()
+
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        $.ajax({
+            url: '/api_dropbox/',
+            type: 'post',
+            data: data,
+            target: target,
+
+            success: function (response){
+                if (response.code == 1000){
+                    
+                    var results = JSON.parse(response.results);
+                    console.log(results);
+
+                    target.autocomplete({
+                    source: results
+                    });
+                }
+            }
+        })
+    })
+
+    // 试了一下
+    $('#BibtexCommit').click(function () {
+        var data = new Object;
+        data.bibtex = $("#Bibtex").val();
+        console.log('bibtex: ')
+        console.log(data.bibtex)
+        data.csrfmiddlewaretoken = '{{csrf_token}}';
+        $.ajax({
+            url: '/bibtex/',
+            type: 'post',
+            data: data,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+
+            success: function (response) {
+                if (response.code == 1000) {
+                    alert("自动填充成功，请检查信息");
+                    $("#English").click();
+                    $("#title").val(response.title);
+                    $("#cjname").val(response.conferjournalname);
+                    if (response.conferorjournal == "J") {
+                        $("#journal").click();
+                        $("#volume").val(response.volume);
+                        $("#issue").val(response.issue);
+
+                    } else {
+                        $("#conference").click();
+                    }
+                    $("#page_1").val(response.startpage);
+                    $("#page_2").val(response.endpage);
+                    // window.location.href = response.url;
+                } else {
+                    // alert("Post not handled properly");
+                }
+            }
+        })
+    });
+
+    // 查询出来的内容显示一下
+
+    $('#commit').click(function () {
+        var data = new FormData();
+        // 标题
+        // data.title = $("#title").val();
+        if (!$('#title').val()) {
+            alert("ALERT: 未填写论文标题!");
+            return;
+        }
+        data.append('title', $("#title").val());
+        // 会议期刊名
+        // data.cjname = $("#cjname").val();
+
+        if (!$('#cjname').val()) {
+            alert("ALERT: 未填写期刊/会议名称!");
+            return;
+        }
+        data.append('cjname', $("#cjname").val());
+        // 语言
+        // data.language = $("input:radio:checked").eq(0).val();
+        data.append('language', $("input:radio:checked").eq(0).val());
+        // 会议还是期刊
+        // data.cj = $("input:radio:checked").eq(1).val();
+        data.append('cj', $("input:radio:checked").eq(1).val());
+
+        // 会议期刊详细属性
+        // data.cjtype = $("input:radio:checked").eq(2).val();
+        if($("input:radio:checked").eq(1).val() == 'journal')
+        {
+            data.append('cjtype', $("input:radio:checked").eq(2).val());
+        }
+        else
+        {
+            data.append('cjtype', $("input:radio:checked").eq(2).val() + $("input:radio:checked").eq(3).val());
+            console.log($("input:radio:checked").eq(2).val() + $("input:radio:checked").eq(3).val());
+        }
+        
+
+        // 日期
+        // data.date = $("#date").val();
+        if (!$('#date').val()) {
+            alert("ALERT: 未选择论文正式发表日期!");
+            return;
+        }
+        data.append('date', $("#date").val());
+        // 页码
+        // data.page_1 = $("#page_1").val();
+        // data.page_2 = $("#page_2").val();
+        if (!$('#page_1').val()) {
+            alert("ALERT: 未填写起始页!");
+            return;
+        }
+        if (!$('#page_2').val()) {
+            alert("ALERT: 未填写终止页!");
+            return;
+        }
+        data.append('page_1', $("#page_1").val());
+        data.append('page_2', $("#page_2").val());
+
+        // 卷期同时处理
+        volume = $("#volume").val();
+        issue = $("#issue").val();
+
+        if (!$('#volume').val() && $("input:radio:checked").eq(1).val() == 'journal') {
+            alert("ALERT: 未填写论文卷号!");
+            return;
+        }
+        if (!$('#issue').val() && $("input:radio:checked").eq(1).val() == 'journal') {
+            alert("ALERT: 未填写论文期号!");
+            return;
+        }
+
+        if($("input:radio:checked").eq(1).val() == 'conference'){
+            data.append('conferencecountry',$('#c_country').val());
+            data.append('conferencecity',$('#c_city').val());
+        }
+        
+        if (volume) {
+            // data.volume = volume;
+            // data.issue = issue;
+            data.append('volume', $("#volume").val());
+            data.append('issue', $("#issue").val());
+        }
+
+        if (!$('#c_country').val() && $("input:radio:checked").eq(1).val() == 'conference') {
+            alert("ALERT: 未填写会议举办国家/地区!");
+            return;
+        }
+        if (!$('#c_city').val() && $("input:radio:checked").eq(1).val() == 'conference') {
+            alert("ALERT: 未填写会议举办城市!");
+            return;
+        }
+
+
+        var authorNames = $("input[label=\"authorname\"]");
+        var authorTypes = $("select[label=\"authortype\"]");
+        var identities = $("select[label=\"identity\"]");
+
+        // 作者列表
+        var authors = new Array;
+        var teacherCount = 0;
+        for (var i = 0; i < authorNames.length; i++) {
+            var dic = new Object;
+            // 作者
+            dic.name = authorNames.eq(i).val();
+            // 第几作者
+            dic.identity = identities.eq(i).val();
+            // 是否校内
+            dic.type = authorTypes.eq(i).val();
+            if (authorTypes.eq(i).val() == "本院教师")
+                teacherCount++;
+            authors.push(dic);
+        }
+        if (teacherCount == 0) {
+            alert("ALERT: 作者中必须有本院教师！");
+        }
+        for (var i = 0; i < authorNames.length; i++) {
+            if (!authorNames.eq(i).val()) {
+                alert("ERROR: 未填写作者 " + (i + 1) + " 姓名!");
+                return;
+            }
+        }
+
+        if (!$('#file').val()) {
+            alert("ALERT: 未选择文件!");
+            return;
+        }
+        // data.authors = authors;
+        data.append('authors', JSON.stringify(authors));
+        data.append('paper', $("#file")[0].files[0]);
+
+        for (var pair of data.entries()) {
+            console.log(pair[0] + ', ' + pair[1]);
+        }
+        data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        console.log(data);
+
+        // 判断是否是第一次发送ajax
+        data.append('is_first', '1')
+
+        $.ajax({
+            url: '/insert/',
+            async: false,
+            type: 'post',
+            data: data,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            // 发送文件 需要修改两个参数
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                if (response.code == 1000) {
+                    alert("添加成功! 即将跳转回主页~");
+                    window.location.href = response.url;
+                }
+                // code 1000: 有重名项，询问是否确认提交
+                else if (response.code == 2000) {
+
+                    var is_confirm = window.confirm("存在重名项论文，是否确认提交");
+                    if (is_confirm == true) {
+                        data.set('is_first', '0');
+                        console.log(data.get('is_first'));
+                        $.ajax({
+                            url: '/insert/',
+                            async: false,
+                            type: 'post',
+                            data: data,
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            // 发送文件 需要修改两个参数
+                            contentType: false,
+                            processData: false,
+                            success: function (inner_response) {
+                                if (inner_response.code == 1000) {
+                                    alert("添加成功! 即将跳转回主页~");
+                                    window.location.href = inner_response.url;
+                                } else {
+                                    console.log(inner_response);
+                                    alert("Post not handled properly");
+                                }
+                            }
+                        })
+                    }
+                } else {
+                    alert("Post not handled properly");
+                }
+            }
+        })
+
+        // alert("   提交成功！\n将跳转到首页");
+
+    });
+
+    // add row
+    $("#addRow").click(function () {
+        var html = '';
+        html += '<div id="inputFormRow">';
+        html += '<table class="table table-striped" style="table-layout:fixed;">';
+        html += '<tbody>';
+        html += '<tr>';
+        html += '<td>';
+        html +=
+            '<select id="人员类型" class="form-control" label="authortype" style="width:110px">';
+        html += '<option>本院教师</option>';
+        html += '<option>本院学生</option>';
+        html += '<option>其他</option>';
+        html += '</select>';
+        html += '</td>';
+
+        html += '<td>';
+        html +=
+            '<select id="身份" class="form-control" label="identity" style="width:110px;">';
+        html += '<option>普通作者</option>';
+        html += '<option>通讯作者</option>';
+        html += '</select>';
+        html += '</td>';
+        html += '<td>';
+        html +=
+            '<input class="form-control" label="authorname" placeholder="请输入姓名" type="text" style="width:110px;">';
+        html += '</td>';
+        html += '<td>';
+        html += '<button id="removeRow" type="button" class="btn btn-danger">删  除</button>';
+        html += '</td>';
+        html += '</tr>';
+        html += '</tbody>';
+        html += '</table>';
+        html += '</div>';
+
+        $('#newRow').append(html);
+    });
+
+    var last_click = 2; //记录上一次是点击的会议(1)还是期刊(2)
+
+    //点击会议
+    $(document).on('click', '#conference', function () {
+
+        var html = '';
+        var html_1 = '';
+        var html_2 = ' ';
+        html += '<div id="address">'
+        html += '<div class="panel-body">';
+        html += '<div class="row">';
+        html += '<div>';
+        html += '<label class="form-inline" style="margin-left: 18px;">';
+        html += '<em style="color: red;margin-right: 5px;">*</em>会议举办国家/地区：';
+        html += '<input type="text" id="c_country" class="form-control" required="required"';
+        html += 'style="width:235px; margin-right: 5px"></label>';
+        html += '<label class="form-inline" style="margin-left: 18px;">';
+        html += '<em style="color: red;margin-right: 5px;">*</em>举办城市：';
+        html += '<input type="text" id="c_city" class="form-control" required="required"';
+        html += 'style="width:240px; margin-right: 18px"></label>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div id="c_row">';
+        html += '<div class="col-xs-3">';
+        html += '<div class="panel panel-info">';
+        html += '<div class="panel-heading"><em style="color: red;margin-right:5px;">*</em>页码范围</div>';
+        html += '<div class="panel-body">';
+        html += '<form class="form-inline">页';
+        html +=
+            '<input class="form-control" type="text" id="page_1" style="width:60px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;margin-left:5px;">~';
+        html +=
+            '<input class="form-control" type="text" id="page_2" style="width:60px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;">';
+        html += '</form>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html_1 += '<div id="c_row_1">';
+        html_1 += '<div class="col-md-3">';
+        html_1 += '<div class="panel panel-info">';
+        html_1 += '<div class="panel-heading"><em style="color: red;margin-right: 5px;">*</em>会议论文类型</div>';
+        html_1 += '<div class="panel-body">';
+        html_1 += '<label class="radio-inline">';
+        html_1 += '<input type="radio" name="c_type" value="长文" id="long_essay" checked/>长文</label>';
+        html_1 += '<label class="radio-inline">';
+        html_1 += '<input type="radio" name="c_type" value="短文" id="short_essay">短文</label>';
+        html_1 += '<label class="radio-inline">';
+        html_1 += '<input type="radio" name="c_type" value="Demo" id="demo">Demo</label>';
+        html_2 += '<div id="demo_row">';
+        html_2 += '<div class="col-md-2">';
+        html_2 += '<div class="panel panel-info">';
+        html_2 += '<div class="panel-heading">展示形式</div>';
+        html_2 += '<div class="panel-body">';
+        html_2 += '<label class="radio-inline">';
+        html_2 += '<input type="radio" name="s_type" value="Oral" checked/>Oral</label>';
+        html_2 += '<br>';
+        html_2 += '<label class="radio-inline">';
+        html_2 += '<input type="radio" name="s_type" value="Poster">Poster</label>';
+        html_2 += '<br>';
+        html_2 += '</div>';
+        html_2 += '</div>';
+        html_2 += '</div>';
+        html_2 += '</div>';
+        html_2 += '</div>';
+        html_1 += '</div>';
+        html_1 += '</div>';
+        html_1 += '</div>';
+
+        if (last_click == 1) {
+            return;
+        } else {
+            $('#c_row').remove();
+            $('#address').remove();
+            $('#c_row_1').remove();
+            $('#jj_row').remove();
+            $('#j_row_1').remove();
+            $('#jj_row_1').remove();
+            $('#demo_row').remove();
+            $('#conference_choice').append(html);
+            $('#conference_choice_1').append(html_1);
+            $('#demo_choice').append(html_2);
+            $('#j_row').remove();
+            last_click = 1; //会议
+        }
+
+        var availableTags = [
+            "阿富汗",
+            "奥兰群岛",
+            "阿尔巴尼亚",
+            "阿尔及利亚",
+            "美属萨摩亚",
+            "安道尔",
+            "安哥拉",
+            "安圭拉",
+            "南极洲",
+            "安提瓜和巴布达",
+            "阿根廷",
+            "亚美尼亚",
+            "阿鲁巴",
+            "澳大利亚",
+            "奥地利",
+            "阿塞拜疆",
+            "巴哈马",
+            "巴林",
+            "孟加拉国",
+            "巴巴多斯",
+            "白俄罗斯",
+            "比利时",
+            "伯利兹",
+            "贝宁",
+            "百慕大",
+            "不丹",
+            "玻利维亚",
+            "波黑",
+            "博茨瓦纳",
+            "布维岛",
+            "巴西",
+            "英属印度洋领地",
+            "文莱",
+            "保加利亚",
+            "布基纳法索",
+            "布隆迪",
+            "柬埔寨",
+            "喀麦隆",
+            "加拿大",
+            "佛得角",
+            "开曼群岛",
+            "中非",
+            "乍得",
+            "智利",
+            "中国",
+            "圣诞岛",
+            "科科斯（基林）群岛",
+            "哥伦比亚",
+            "科摩罗",
+            "刚果（布）",
+            "刚果（金）",
+            "库克群岛",
+            "哥斯达黎加",
+            "科特迪瓦",
+            "克罗地亚",
+            "古巴",
+            "塞浦路斯",
+            "捷克",
+            "丹麦",
+            "吉布提",
+            "多米尼克",
+            "多米尼加",
+            "厄瓜多尔",
+            "埃及",
+            "萨尔瓦多",
+            "赤道几内亚",
+            "厄立特里亚",
+            "爱沙尼亚",
+            "埃塞俄比亚",
+            "福克兰群岛（马尔维纳斯）",
+            "法罗群岛",
+            "斐济",
+            "芬兰",
+            "法国",
+            "法属圭亚那",
+            "法属波利尼西亚",
+            "法属南部领地",
+            "加蓬",
+            "冈比亚",
+            "格鲁吉亚",
+            "德国",
+            "加纳",
+            "直布罗陀",
+            "希腊",
+            "格陵兰",
+            "格林纳达",
+            "瓜德罗普",
+            "关岛",
+            "危地马拉",
+            "格恩西岛",
+            "几内亚",
+            "几内亚比绍",
+            "圭亚那",
+            "海地",
+            "赫德岛和麦克唐纳岛",
+            "梵蒂冈",
+            "洪都拉斯",
+            "中国香港",
+            "匈牙利",
+            "冰岛",
+            "印度",
+            "印度尼西亚",
+            "伊朗",
+            "伊拉克",
+            "爱尔兰",
+            "英国属地曼岛",
+            "以色列",
+            "意大利",
+            "牙买加",
+            "日本",
+            "泽西岛",
+            "约旦",
+            "哈萨克斯坦",
+            "肯尼亚",
+            "基里巴斯",
+            "朝鲜",
+            "韩国",
+            "科威特",
+            "吉尔吉斯斯坦",
+            "老挝",
+            "拉脱维亚",
+            "黎巴嫩",
+            "莱索托",
+            "利比里亚",
+            "利比亚",
+            "列支敦士登",
+            "立陶宛",
+            "卢森堡",
+            "中国澳门",
+            "前南马其顿",
+            "马达加斯加",
+            "马拉维",
+            "马来西亚",
+            "马尔代夫",
+            "马里",
+            "马耳他",
+            "马绍尔群岛",
+            "马提尼克",
+            "毛利塔尼亚",
+            "毛里求斯",
+            "马约特",
+            "墨西哥",
+            "密克罗尼西亚联邦",
+            "摩尔多瓦",
+            "摩纳哥",
+            "蒙古",
+            "黑山",
+            "蒙特塞拉特",
+            "摩洛哥",
+            "莫桑比克",
+            "缅甸",
+            "纳米比亚",
+            "瑙鲁",
+            "尼泊尔",
+            "荷兰",
+            "荷属安的列斯",
+            "新喀里多尼亚",
+            "新西兰",
+            "尼加拉瓜",
+            "尼日尔",
+            "尼日利亚",
+            "纽埃",
+            "诺福克岛",
+            "北马里亚纳",
+            "挪威",
+            "阿曼",
+            "巴基斯坦",
+            "帕劳",
+            "巴勒斯坦",
+            "巴拿马",
+            "巴布亚新几内亚",
+            "巴拉圭",
+            "秘鲁",
+            "菲律宾",
+            "皮特凯恩",
+            "波兰",
+            "葡萄牙",
+            "波多黎各",
+            "卡塔尔",
+            "留尼汪",
+            "罗马尼亚",
+            "俄罗斯联邦",
+            "卢旺达",
+            "圣赫勒拿",
+            "圣基茨和尼维斯",
+            "圣卢西亚",
+            "圣皮埃尔和密克隆",
+            "圣文森特和格林纳丁斯",
+            "萨摩亚",
+            "圣马力诺",
+            "圣多美和普林西比",
+            "沙特阿拉伯",
+            "塞内加尔",
+            "塞尔维亚",
+            "塞舌尔",
+            "塞拉利昂",
+            "新加坡",
+            "斯洛伐克",
+            "斯洛文尼亚",
+            "所罗门群岛",
+            "索马里",
+            "南非",
+            "南乔治亚岛和南桑德韦奇岛",
+            "西班牙",
+            "斯里兰卡",
+            "苏丹",
+            "苏里南",
+            "斯瓦尔巴岛和扬马延岛",
+            "斯威士兰",
+            "瑞典",
+            "瑞士",
+            "叙利亚",
+            "中国台湾",
+            "塔吉克斯坦",
+            "坦桑尼亚",
+            "泰国",
+            "东帝汶",
+            "多哥",
+            "托克劳",
+            "汤加",
+            "特立尼达和多巴哥",
+            "突尼斯",
+            "土耳其",
+            "土库曼斯坦",
+            "特克斯和凯科斯群岛",
+            "图瓦卢",
+            "乌干达",
+            "乌克兰",
+            "阿联酋",
+            "英国",
+            "美国",
+            "美国本土外小岛屿",
+            "乌拉圭",
+            "乌兹别克斯坦",
+            "瓦努阿图",
+            "委内瑞拉",
+            "越南",
+            "英属维尔京群岛",
+            "美属维尔京群岛",
+            "瓦利斯和富图纳",
+            "西撒哈拉",
+            "也门",
+            "赞比亚",
+            "津巴布韦"
+        ];
+        $( "#c_country" ).autocomplete({
+        source: availableTags
+        });
+    });
+
+    //点击期刊
+    $(document).on('click', '#journal', function () {
+        var html = '';
+        var html_1 = '';
+        html += '<div id="j_row">';
+        html += '<div class="col-xs-2">';
+        html += '<div class="panel panel-info">';
+        html += '<div class="panel-heading"><em style="color: red;margin-right:5px;">*</em>页码范围</div>';
+        html += '<div class="panel-body">';
+        html += '<form class="form-inline">卷';
+        html +=
+            '<input class="form-control" type="text" id="volume" style="width:40px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;margin-left:5px;margin-right:5px;">期';
+        html +=
+            '<input class="form-control" type="text" id="issue" style="width:40px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;margin-right:10px;margin-left:5px;">页';
+        html +=
+            '<input class="form-control" type="text" id="page_1" style="width:60px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;">~';
+        html +=
+            '<input class="form-control" type="text" id="page_2" style="width:60px;padding:3px 10px;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-size:13px 13px;appearance:yes;-moz-appearance:yes;-webkit-appearance:yes;">';
+        html += '</form>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        html_1 += '<div id="j_row_1">';
+        html_1 += '<div class="col-md-3">';
+        html_1 += '<div class="panel panel-info">';
+        html_1 += '<div class="panel-heading"><em style="color: red;margin-right: 5px;">*</em>期刊论文类型</div>';
+        html_1 += '<div class="panel-body">';
+        html_1 += '<label class="radio-inline">';
+        html_1 += '<input type="radio" name="j_type" value="正刊" checked/>正刊</label>';
+        // html_1 += '<br>';
+        html_1 += '<label class="radio-inline">';
+        html_1 += '<input type="radio" name="j_type" value="专刊">专刊</label>';
+
+        html_1 += '<label class="radio-inline">';
+        html_1 += ' <input type="radio" name="j_type" value="专刊">增刊</label>';
+        html_1 += '</div>';
+        html_1 += '</div>';
+        html_1 += '</div>';
+
+        if (last_click == 2) return;
+        else {
+            $('#j_row').remove();
+            $('#address').remove();
+            $('#j_row_1').remove();
+            $('#c_row_1').remove();
+            $('#jj_row').remove();
+            $('#jj_row_1').remove();
+            $('#demo_row').remove();
+            $('#journal_choice').append(html);
+            $('#journal_choice_1').append(html_1);
+            $('#c_row').remove();
+            last_click = 2;
+        }
+
+
+
+    });
+
+    //点击demo
+    $(document).on('click', '#demo', function () {
+        $('#demo_row').remove();
+    });
+
+    $(document).on('click', '#long_essay', function () {
+        var html = '';
+        html += '<div id="demo_row">';
+        html += '<div class="col-md-2">';
+        html += '<div class="panel panel-info">';
+        html += '<div class="panel-heading">展示形式</div>';
+        html += '<div class="panel-body">';
+        html += '<label class="radio-inline">';
+        html += '<input type="radio" name="s_type" value="Oral" checked/>Oral</label>';
+        html += '<br>';
+        html += '<label class="radio-inline">';
+        html += '<input type="radio" name="s_type" value="Poster">Poster</label>';
+        html += '<br>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        $('#demo_row').remove();
+        $('#demo_choice').append(html);
+
+    });
+
+    // remove row
+    $(document).on('click', '#short_essay', function () {
+        var html = '';
+        html += '<div id="demo_row">';
+        html += '<div class="col-md-2">';
+        html += '<div class="panel panel-info">';
+        html += '<div class="panel-heading">展示形式</div>';
+        html += '<div class="panel-body">';
+        html += '<label class="radio-inline">';
+        html += '<input type="radio" name="s_type" value="Oral" checked/>Oral</label>';
+        html += '<br>';
+        html += '<label class="radio-inline">';
+        html += '<input type="radio" name="s_type" value="Poster">Poster</label>';
+        html += '<br>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        $('#demo_row').remove();
+        $('#demo_choice').append(html);
+    });
+
+    // remove row
+    $(document).on('click', '#removeRow', function () {
+        $(this).closest('#inputFormRow').remove();
+    });
+</script>
+
+
+
+{% endblock %}

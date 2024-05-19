@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>东北大学 科研成果管理系统</title>
+    {% load static %}
+    <!-- icon -->
+    <link rel="shortcut icon" href="{% static 'media/favicon.ico' %}">
+
+    <script src="{% static 'bootstrap/js/jquery.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'bootstrap/js/moment-with-locales.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-datetimepicker.min.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <script src="{% static 'bootstrap/js/jquery-ui.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/jquery-ui.css' %}">
+
+    {% block css %}
+
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {% if request.user.is_authenticated %}
+                <a class="navbar-brand" href="/home">东北大学 科研成果管理系统</a>
+            {% else %}
+                <a class="navbar-brand" href="/index">东北大学 科研成果管理系统</a>
+            {% endif %}
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                {% if request.user.is_authenticated %}
+                <li class="active"><a href="/home"> 主页 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/insert">添加论文</a></li>
+                <li><a href="/query">查询导出已有论文</a></li>
+                    {% if request.user.is_staff %}
+                        <li><a href="/createuser">创建新用户</a></li>
+                    {% endif %}
+                {% else %}
+                <!-- 注意! 为调试方便，暂时允许不登录查看页面 -->
+                <li class="active"><a href="/index"> 主页 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/index">添加论文</a></li>
+                <li><a href="/index">查询导出已有论文</a></li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">更多操作 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" data-toggle="modal" data-target=".bs-example-modal-lg">修改密码</a></li>
+                            <li><a href="#">修改头像</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <!--<li><a href="/register">注册</a></li>-->
+                    <li><a href="/index">登录</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 style="font-size:22px" class="panel-title text-center">个人信息</h3>
+                </div>
+                <div class="panel-body text-center">
+                    {% if request.user.is_authenticated %}
+                        {% comment %} <a href = "/set_img">
+                        <img src="/media/user/sign.png" style="max-width: 50%" class="img-thumbnail img-responsive text-center" alt="用户头像">
+                        </a> {% endcomment %}
+                    {% else %}
+                        <a href = "/index">
+                        <img src="/static/user/annonymous.jpg" style="max-width: 50%" class="img-thumbnail img-responsive text-center" alt="用户头像">
+                        </a>
+                    {% endif %}
+                    <p></p>
+                    {% if request.user.is_authenticated %}
+                        <a style="font-size:18px" href='/home'>{{ request.user.username }}</a>
+                    {% else %}
+                        <a style="font-size:18px" href='/index'>（未登录）</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 style="font-size:22px" class="panel-title text-center">用户导航</h3>
+                </div>
+                
+                <ul class="nav nav-pills nav-stacked text-center">
+                    {% if request.user.is_authenticated %}
+                        <li><a style="font-size:16px" href="/home">主页</a></li>
+                        <li><a style="font-size:16px" href="/insert">添加论文</a></li>
+                        <li><a style="font-size:16px" href="/query">查询导出已有论文</a></li>
+                        {% if request.user.is_staff %}
+                            <li><a style="font-size:16px" href="/createuser">创建新用户</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a style="font-size:16px" href="/index">主页</a></li>
+                        <li><a style="font-size:16px" href="/index">添加论文</a></li>
+                        <li><a style="font-size:16px" href="/index">查询导出已有论文</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <!--
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">在线直播</h3>
+                </div>
+                <div class="panel-body">
+                    点我点我，有你好看~
+                </div>
+            </div>
+        -->
+        </div>
+        {% block content %}
+        {% endblock %}
+        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <h2 class="text-center">修改密码</h2>
+                            <div class="form-group">
+                                <label for="username">用户名</label>
+                                <input type="text" name="username" disabled value="{{ request.user.username }}" id="username"
+                                       class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="old_password">原密码</label>
+                                <input type="password" name="old_password" id="old_password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password">新密码</label>
+                                <input type="password" name="new_password" id="new_password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password">确认密码</label>
+                                <input type="password" name="confirm_password" id="confirm_password" class="form-control">
+                            </div>
+                            <input type="button" id="b1" class="btn btn-primary" value="提交">
+                            <button type="button" class="btn btn-default " data-dismiss="modal">取消</button>
+                            <span style="color: red" id="error"></span>
+                            <br>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#b1').on('click', function () {
+        $.ajax({
+            url: '/set_password/',
+            type: 'post',
+            data: {
+                'old_password': $('#old_password').val(),
+                'new_password': $('#new_password').val(),
+                'confirm_password': $('#confirm_password').val(),
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                if (data.code == 1000) {
+                    window.location.href = data.url
+                } else {
+                    $('#error').text(data.msg)
+                }
+            }
+        })
+    })
+</script>
+
+
+
+{% block js %}
+
+{% endblock %}
+</body>
+</html>
